@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
 from app.models.project import Project
@@ -64,7 +65,14 @@ async def create_project(session: AsyncSession, data: ProjectCreate) -> Project:
                 )
             session.add(Place(project_id=project.id, external_id=place_data.external_id))
 
-    await session.commit()
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Project with name '{data.name}' already exists",
+        )
     await session.refresh(project)
     result = await session.execute(
         select(Project).where(Project.id == project.id).options(selectinload(Project.places))
