@@ -22,10 +22,17 @@ async def get_project_or_404(session: AsyncSession, project_id: int) -> Project:
     return project
 
 
-async def list_projects(session: AsyncSession) -> list[Project]:
-    result = await session.execute(
-        select(Project).options(selectinload(Project.places))
-    )
+async def list_projects(
+    session: AsyncSession,
+    skip: int = 0,
+    limit: int = 20,
+    is_completed: bool | None = None,
+) -> list[Project]:
+    query = select(Project).options(selectinload(Project.places))
+    if is_completed is not None:
+        query = query.where(Project.is_completed == is_completed)
+    query = query.offset(skip).limit(limit)
+    result = await session.execute(query)
     return list(result.scalars().all())
 
 

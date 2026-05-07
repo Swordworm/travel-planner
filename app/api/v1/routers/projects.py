@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, status
+from typing import Optional
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -9,8 +10,13 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 
 @router.get("", response_model=list[ProjectRead])
-async def list_projects(db: AsyncSession = Depends(get_db)):
-    return await project_service.list_projects(db)
+async def list_projects(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
+    is_completed: Optional[bool] = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    return await project_service.list_projects(db, skip=skip, limit=limit, is_completed=is_completed)
 
 
 @router.get("/{project_id}", response_model=ProjectRead)

@@ -22,11 +22,19 @@ async def get_place_or_404(session: AsyncSession, project_id: int, place_id: int
     return place
 
 
-async def list_places(session: AsyncSession, project_id: int) -> list[Place]:
+async def list_places(
+    session: AsyncSession,
+    project_id: int,
+    skip: int = 0,
+    limit: int = 20,
+    is_visited: bool | None = None,
+) -> list[Place]:
     await get_project_or_404(session, project_id)
-    result = await session.execute(
-        select(Place).where(Place.project_id == project_id)
-    )
+    query = select(Place).where(Place.project_id == project_id)
+    if is_visited is not None:
+        query = query.where(Place.is_visited == is_visited)
+    query = query.offset(skip).limit(limit)
+    result = await session.execute(query)
     return list(result.scalars().all())
 
 
