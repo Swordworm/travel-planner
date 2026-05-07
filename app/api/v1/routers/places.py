@@ -1,0 +1,32 @@
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.session import get_db
+from app.schemas.place import PlaceCreate, PlaceRead, PlaceUpdate
+from app.services import place_service
+
+router = APIRouter(prefix="/projects/{project_id}/places", tags=["places"])
+
+
+@router.get("", response_model=list[PlaceRead])
+async def list_places(project_id: int, db: AsyncSession = Depends(get_db)):
+    return await place_service.list_places(db, project_id)
+
+
+@router.get("/{place_id}", response_model=PlaceRead)
+async def get_place(project_id: int, place_id: int, db: AsyncSession = Depends(get_db)):
+    return await place_service.get_place(db, project_id, place_id)
+
+
+@router.post("", response_model=PlaceRead, status_code=status.HTTP_201_CREATED)
+async def add_place(
+    project_id: int, data: PlaceCreate, db: AsyncSession = Depends(get_db)
+):
+    return await place_service.add_place(db, project_id, data)
+
+
+@router.put("/{place_id}", response_model=PlaceRead)
+async def update_place(
+    project_id: int, place_id: int, data: PlaceUpdate, db: AsyncSession = Depends(get_db)
+):
+    return await place_service.update_place(db, project_id, place_id, data)
