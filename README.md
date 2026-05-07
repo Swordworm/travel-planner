@@ -18,7 +18,10 @@ A REST API for managing travel projects and places using the [Art Institute of C
 git clone <repo-url>
 cd travel-planner
 
-docker compose up --build
+docker build -t travel-planner .
+docker run -p 8000:8000 -v travel-planner-data:/app/data \
+  -e DATABASE_URL=sqlite+aiosqlite:////app/data/travel-planner.db \
+  travel-planner
 ```
 
 The API will be available at `http://localhost:8000`. Migrations run automatically on startup. The SQLite database is persisted in a named Docker volume.
