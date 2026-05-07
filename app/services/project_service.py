@@ -42,7 +42,12 @@ async def create_project(session: AsyncSession, data: ProjectCreate) -> Project:
     session.add(project)
     await session.flush()
 
-    if data.places:
+    if data.places is not None:
+        if len(data.places) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Places array must contain at least 1 place",
+            )
         if len(data.places) > 10:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -82,12 +87,6 @@ async def create_project(session: AsyncSession, data: ProjectCreate) -> Project:
 
 async def update_project(session: AsyncSession, project_id: int, data: ProjectUpdate) -> Project:
     project = await get_project_or_404(session, project_id)
-
-    if any(p.is_visited for p in project.places):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Cannot update project with visited places",
-        )
 
     if data.name is not None:
         project.name = data.name
