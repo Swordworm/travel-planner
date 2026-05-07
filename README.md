@@ -12,12 +12,25 @@ A REST API for managing travel projects and places using the [Art Institute of C
 
 ## Setup
 
-### Requirements
+### Docker (recommended)
+
+```bash
+git clone <repo-url>
+cd travel-planner
+
+docker compose up --build
+```
+
+The API will be available at `http://localhost:8000`. Migrations run automatically on startup. The SQLite database is persisted in a named Docker volume.
+
+### Local
+
+#### Requirements
 
 - Python 3.11+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-### Installation
+#### Installation
 
 ```bash
 git clone <repo-url>
@@ -55,7 +68,7 @@ Base path: `/api/v1`
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/projects` | Create a project (optionally with places) |
-| `GET` | `/projects` | List all projects |
+| `GET` | `/projects` | List projects (`skip`, `limit`, `is_completed`) |
 | `GET` | `/projects/{id}` | Get a single project |
 | `PUT` | `/projects/{id}` | Update a project |
 | `DELETE` | `/projects/{id}` | Delete a project |
@@ -65,7 +78,7 @@ Base path: `/api/v1`
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/projects/{id}/places` | Add a place to a project |
-| `GET` | `/projects/{id}/places` | List all places in a project |
+| `GET` | `/projects/{id}/places` | List places in a project (`skip`, `limit`, `is_visited`) |
 | `GET` | `/projects/{id}/places/{place_id}` | Get a single place |
 | `PUT` | `/projects/{id}/places/{place_id}` | Update notes or mark as visited |
 
@@ -73,7 +86,7 @@ Base path: `/api/v1`
 
 - Project can have 1–10 places
 - Same artwork cannot be added to the same project twice
-- Project cannot be deleted or updated if any place is marked as visited
+- Project cannot be deleted if any place is marked as visited
 - When all places in a project are visited, the project is automatically marked as completed
 
 ## Example Requests
