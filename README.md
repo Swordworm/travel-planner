@@ -62,6 +62,10 @@ Interactive docs: `http://localhost:8000/docs`
 |----------|---------|-------------|
 | `DATABASE_URL` | `sqlite+aiosqlite:///travel-planner.db` | SQLite connection string |
 
+## Postman Collection
+
+Import [`api.postman_collection.json`](./api.postman_collection.json) into Postman to explore all endpoints with example requests.
+
 ## API Endpoints
 
 Base path: `/api/v1`
